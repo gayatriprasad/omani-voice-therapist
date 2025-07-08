@@ -1,0 +1,56 @@
+version: "3.9"
+name: omani
+
+services:
+  tts_service:
+    build:
+      context: .
+      dockerfile: ./src/speech_processing/tts_service/Dockerfile
+    ports:
+      - "8005:8005"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8005/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: on-failure
+
+  whisper_service:
+    build:
+      context: .
+      dockerfile: ./src/speech_processing/whisper_service/Dockerfile
+    ports:
+      - "8020:8004"  # host:container
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: on-failure
+
+  llm_router:
+    build:
+      context: .
+      dockerfile: ./src/llm_router/Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: on-failure
+
+  streamlit_ui:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    ports:
+      - "8501:8501"
+    depends_on:
+      - whisper_service
+      - llm_router
+      - tts_service
+    restart: on-failure
