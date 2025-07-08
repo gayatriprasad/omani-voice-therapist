@@ -1,0 +1,23 @@
+cat > .gitignore <<EOF
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# Data + local artifacts
+logs/
+*.wav
+*.aiff
+.env
+.env.*
+
+# pytest
+.pytest_cache/
+
+# macOS
+.DS_Store
+EOF
+.env
+.env
+spry-pipe-*.json
